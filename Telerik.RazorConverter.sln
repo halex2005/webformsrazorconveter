@@ -1,15 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "References", "References", "{8C7D4819-0256-4CFC-9F3D-00CFB7A41D0F}"
-	ProjectSection(SolutionItems) = preProject
-		References\Moq.dll = References\Moq.dll
-		References\Moq.xml = References\Moq.xml
-		References\xunit.dll = References\xunit.dll
-		References\xunit.extensions.dll = References\xunit.extensions.dll
-		References\xunit.extensions.xml = References\xunit.extensions.xml
-	EndProjectSection
-EndProject
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2047
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Telerik.RazorConverter", "Telerik.RazorConverter\Telerik.RazorConverter.csproj", "{88630458-D5BE-43B0-A7FB-BC0DFE6CB62E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Telerik.RazorConverter.Tests", "Telerik.RazorConverter.Tests\Telerik.RazorConverter.Tests.csproj", "{2445EA5B-53A9-4522-B0B8-342C1241A13A}"
@@ -107,5 +100,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B43B3D7A-AF96-4A2B-AAEC-72513CEB4271}
 	EndGlobalSection
 EndGlobal
