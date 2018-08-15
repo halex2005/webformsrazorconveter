@@ -1,29 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Vsix xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
-    <Identifier Id="b3611c6c-b48a-465e-88ea-86682f003228">
-        <Name>WebFormsRazorConverterVsExtension</Name>
-        <Author>Raj Aththanayake</Author>
-        <Version>1.0</Version>
-        <Description xml:space="preserve">This tool converts WebForms(ASPX/ASCX) Views to corresponding Razor Views (CSHTML only). </Description>
-        <Locale>1033</Locale>
-        <MoreInfoUrl>http://blog.rajsoftware.com</MoreInfoUrl>
-        <GettingStartedGuide>http://blog.rajsoftware.com</GettingStartedGuide>
-        <InstalledByMsi>false</InstalledByMsi>
-        <SupportedProducts>
-            <VisualStudio Version="10.0">
-                <Edition>Ultimate</Edition>
-                <Edition>Premium</Edition>
-                <Edition>Pro</Edition>
-            </VisualStudio>
-        </SupportedProducts>
-        <SupportedFrameworkRuntimeEdition MinVersion="4.0" MaxVersion="4.0" />
-    </Identifier>
-    <References>
-        <Reference Id="Microsoft.VisualStudio.MPF" MinVersion="10.0">
-            <Name>Visual Studio MPF</Name>
-        </Reference>
-    </References>
-    <Content>
-        <VsPackage>|%CurrentProject%;PkgdefProjectOutputGroup|</VsPackage>
-    </Content>
-</Vsix>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+    <Metadata>
+        <Identity Id="b3611c6c-b48a-465e-88ea-86682f003228" Version="1.0" Language="en-US" Publisher="Raj Aththanayake" />
+        <DisplayName>WebFormsRazorConverterVsExtension</DisplayName>
+        <Description>This tool converts WebForms(ASPX/ASCX) Views to corresponding Razor Views (CSHTML only).</Description>
+	<MoreInfo>http://blog.rajsoftware.com</MoreInfo>
+	<GettingStartedGuide>https://bitbucket.org/rajitha_kba/webformsrazorconveter/src/default/</GettingStartedGuide>
+    </Metadata>
+    <Installation>
+        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0]" />
+        <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[15.0]" />
+        <InstallationTarget Id="Microsoft.VisualStudio.Premium" Version="[15.0]" />
+        <InstallationTarget Id="Microsoft.VisualStudio.Ultimate" Version="[15.0]" />
+    </Installation>
+    <Dependencies>
+        <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.0,)" />
+    </Dependencies>
+    <Prerequisites>
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,16.0)" DisplayName="Visual Studio core editor" />
+    </Prerequisites>
+    <Assets>
+        <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+    </Assets>
+</PackageManifest>

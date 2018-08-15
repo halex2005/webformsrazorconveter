@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
-using Microsoft.Win32;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using AspxToRazorForms;
 
@@ -42,10 +37,8 @@ namespace RajAththanayake.WebFormsRazorConverterVsExtension
         /// </summary>
         public WebFormsRazorConverterVsExtensionPackage()
         {
-            Trace.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this.ToString()));
+            Trace.WriteLine($"Entering constructor for: {this}");
         }
-
-
 
         /////////////////////////////////////////////////////////////////////////////
         // Overriden Package Implementation
@@ -57,30 +50,26 @@ namespace RajAththanayake.WebFormsRazorConverterVsExtension
         /// </summary>
         protected override void Initialize()
         {
-            Trace.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
+            Trace.WriteLine ($"Entering Initialize() of: {this}");
             base.Initialize();
 
             // Add our command handlers for menu (commands must exist in the .vsct file)
-            OleMenuCommandService mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            if ( null != mcs )
+	        if ( GetService(typeof(IMenuCommandService)) is OleMenuCommandService mcs )
             {
                 // Create the command for the menu item.
-                CommandID menuCommandID = new CommandID(GuidList.guidWebFormsRazorConverterVsExtensionCmdSet, (int)PkgCmdIDList.cmdidMyCommand);
-                MenuCommand menuItem = new MenuCommand(MenuItemCallback, menuCommandID );
+                var menuCommandId = new CommandID(
+	                GuidList.guidWebFormsRazorConverterVsExtensionCmdSet,
+	                (int)PkgCmdIDList.cmdidMyCommand);
+                var menuItem = new MenuCommand(MenuItemCallback, menuCommandId );
                 mcs.AddCommand( menuItem );
             }
         }
         #endregion
 
-        private void MenuItemCallback(object sender, EventArgs e)
+        private static void MenuItemCallback(object sender, EventArgs e)
         {
-            RazorForm form = new RazorForm();
+            var form = new RazorForm();
             form.Show();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
         }
     }
 }
