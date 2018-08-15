@@ -215,6 +215,37 @@
             var document = parser.Parse(docType);
             ((IWebFormsTextNode)document.RootNode.Children[0]).Text.ShouldEqual(docType);
         }
+
+		[Fact]
+		public void Parse_should_treat_adjacent_elements_as_siblings()
+		{
+			var document = parser.Parse(@"<asp:Label runat=""server"" id=""label1""></asp:Label><asp:Label runat=""server"" id=""label2""></asp:Label>");
+			(document.RootNode.Children[0] is IWebFormsServerControlNode).ShouldBeTrue();
+			(document.RootNode.Children[1] is IWebFormsServerControlNode).ShouldBeTrue();
+			((IWebFormsServerControlNode)document.RootNode.Children[0]).Attributes["id"].ShouldEqual("label1");
+			((IWebFormsServerControlNode)document.RootNode.Children[1]).Attributes["id"].ShouldEqual("label2");
+		}
+
+		[Fact]
+		public void Parse_should_treat_adjacent_elements_withshortcut_closing_as_siblings()
+		{
+			var document = parser.Parse(@"<asp:Label runat=""server"" id=""label1""/><asp:Label runat=""server"" id=""label2""/>");
+			(document.RootNode.Children[0] is IWebFormsServerControlNode).ShouldBeTrue();
+			(document.RootNode.Children[1] is IWebFormsServerControlNode).ShouldBeTrue();
+			((IWebFormsServerControlNode)document.RootNode.Children[0]).Attributes["id"].ShouldEqual("label1");
+			((IWebFormsServerControlNode)document.RootNode.Children[1]).Attributes["id"].ShouldEqual("label2");
+		}
+
+        [Fact]
+        public void Should_parse_javascript_nested_expressions()
+        {
+            var script = "<script type=\"javascript\">var url = '<%= Url.Action(\"Test\", \"Controller\", null)%>';</script>";
+            var document = parser.Parse(script);
+            document.RootNode.Children.Count.ShouldEqual(3);
+            ((IWebFormsTextNode)document.RootNode.Children[0]).Text.ShouldEqual("<script type=\"javascript\">var url = '");
+            ((IWebFormsExpressionBlockNode)document.RootNode.Children[1]).Expression.ShouldEqual(" Url.Action(\"Test\", \"Controller\", null)");
+            ((IWebFormsTextNode)document.RootNode.Children[2]).Text.ShouldEqual("';</script>");
+        }
     }
 }
 
