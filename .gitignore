@@ -1,3 +1,16 @@
 bin/
 obj/
 *.suo
+*.sil
+*.out
+*.db
+*.dat
+*.dll
+*.pdb
+*.tlog
+*.cache
+*.targets
+linqtoxsd.2.0.2.56002-bin/LinqToXsd.exe
+linqtoxsd.2.0.2.56002-bin/LinqToXsd.exe.config
+_ReSharper.*
+*.user
