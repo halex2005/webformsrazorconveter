@@ -1,0 +1,16 @@
+syntax: glob
+*.sil
+*.out
+*.db
+*.dat
+*.dll
+*.pdb
+*.tlog
+*.cache
+*.targets
+linqtoxsd.2.0.2.56002-bin/LinqToXsd.exe
+linqtoxsd.2.0.2.56002-bin/LinqToXsd.exe.config
+obj/Debug/.*
+obj/Release/.*
+_ReSharper.*
+*.user
