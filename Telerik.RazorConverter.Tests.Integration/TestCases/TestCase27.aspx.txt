@@ -1,0 +1,27 @@
+<%@ Page Language="C#" Inherits="System.Web.Mvc.ViewUserControl<CaseListModel>" %>
+
+<%foreach (var category in Model.CaseCategories) {%>
+    <h1 class="header">
+        <%=category.Title%>
+    </h1>
+
+    <%foreach (var categoryItem in category.Items) {%>
+        <%var uid = Guid.NewGuid(); %>
+        <div class="item" id="<%=uid%>" numberOfPages="<%=categoryItem.NumberOfPages%>">
+            <%= !string.IsNullOrEmpty(categoryItem.Title) ? categoryItem.Title : "not specified" %>
+        </div>
+        <%{%>
+            <%var controllerName = categoryItem.ControllerType.Name;%>
+            <%var shortControllerName = controllerName.Substring(0, controllerName.Length-"Controller".Length);%>
+            <%var url = shortControllerName + "/" + categoryItem.Method.Name ;%>
+
+            <script type="text/javascript">
+                var c = new CategoryItem({
+                    id: "<%= uid %>",
+                    requestUrl : "<%= url %>"
+                });
+                c.init();
+            </script>
+        <%}%>
+    <%}%>
+<%}%>

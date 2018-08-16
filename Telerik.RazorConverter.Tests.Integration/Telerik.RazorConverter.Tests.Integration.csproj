@@ -69,6 +69,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestCases\TestCase25.aspx.txt" />
+    <Content Include="TestCases\TestCase27.aspx.txt" />
+    <Content Include="TestCases\TestCase28.aspx.txt" />
     <None Include="TestCases\TestCase26.cshtml" />
     <None Include="TestCases\TestCase24.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -228,6 +230,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="TestCases\TestCase25.cshtml" />
+    <None Include="TestCases\TestCase27.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestCases\TestCase01.cshtml">
