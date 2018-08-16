@@ -1,4 +1,4 @@
-﻿namespace Telerik.RazorConverter.Tests.Razor.Converters
+namespace Telerik.RazorConverter.Tests.Razor.Converters
 {
     using Moq;
     using Telerik.RazorConverter.Razor.Converters;
@@ -35,7 +35,7 @@
         public void Should_convert_text_as_it_is()
         {
             textNodeMock.Setup(n => n.Text).Returns(" TEXT ");
-            nodeFactoryMock.Setup(f => f.CreateTextNode(" TEXT ")).Verifiable();
+            nodeFactoryMock.Setup(f => f.CreateTextNode(" TEXT ", CodeBlockNodeType.Complete)).Verifiable();
 
             converter.ConvertNode(textNodeMock.Object);
 

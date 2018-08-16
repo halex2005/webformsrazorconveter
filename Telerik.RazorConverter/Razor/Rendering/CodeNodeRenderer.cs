@@ -1,21 +1,29 @@
-﻿namespace Telerik.RazorConverter.Razor.Rendering
+namespace Telerik.RazorConverter.Razor.Rendering
 {
     using Telerik.RazorConverter.Razor.DOM;
 
     public class CodeNodeRenderer : IRazorNodeRenderer
     {
-        public string RenderNode(IRazorNode node)
+        public string RenderNode(IRazorNode node, bool isInCodeBlockContext)
         {
             var srcNode = node as IRazorCodeNode;
             var prefix = "";
             var code = srcNode.Code;
 
-            if (srcNode.RequiresBlock)
+            var requiresBlock = srcNode.RequiresBlock;
+            var requiresPrefix = srcNode.RequiresPrefix;
+            if (isInCodeBlockContext)
+            {
+                requiresBlock = false;
+                requiresPrefix = false;
+            }
+
+            if (requiresBlock)
             {
                 code = "{\r\n" + code + "\r\n}";
             }
 
-            if (srcNode.RequiresPrefix || srcNode.RequiresBlock)
+            if (requiresPrefix || requiresBlock)
             {
                 prefix = "@";
                 code = code.TrimStart();

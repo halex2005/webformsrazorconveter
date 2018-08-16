@@ -1,6 +1,9 @@
-﻿<%@ Page Language="C#" Inherits="System.Web.Mvc.ViewUserControl<CaseListModel>" %>
+<%@ Page Language="C#" Inherits="System.Web.Mvc.ViewUserControl<CaseListModel>" %>
 
 <head runat="server">
 	<% var someVariable = "value"; %>
 	<div><%= someVariable %></div>
+	<% if (someVariable.Length > 0) { %>
+		some text here
+	<% } %>
 </head>

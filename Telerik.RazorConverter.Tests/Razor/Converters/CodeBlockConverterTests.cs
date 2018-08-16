@@ -1,4 +1,4 @@
-﻿namespace Telerik.RazorConverter.Tests.Razor.Converters
+namespace Telerik.RazorConverter.Tests.Razor.Converters
 {
     using Moq;
     using Telerik.RazorConverter.Razor.Converters;
@@ -36,7 +36,7 @@
         {
             codeBlockMock.Setup(cb => cb.Code).Returns("if (true) { doSomething(); }");
             codeBlockMock.Setup(cb => cb.BlockType).Returns(CodeBlockNodeType.Complete);
-            nodeFactoryMock.Setup(f => f.CreateCodeNode("if (true) { doSomething(); }", true, false)).Verifiable();
+            nodeFactoryMock.Setup(f => f.CreateCodeNode("if (true) { doSomething(); }", true, false, CodeBlockNodeType.Complete)).Verifiable();
 
             converter.ConvertNode(codeBlockMock.Object);
 
@@ -48,7 +48,7 @@
         {
             codeBlockMock.Setup(cb => cb.Code).Returns("if (true) {");
             codeBlockMock.Setup(cb => cb.BlockType).Returns(CodeBlockNodeType.Opening);
-            nodeFactoryMock.Setup(f => f.CreateCodeNode("if (true) {", true, false)).Verifiable();
+            nodeFactoryMock.Setup(f => f.CreateCodeNode("if (true) {", true, false, CodeBlockNodeType.Complete)).Verifiable();
 
             converter.ConvertNode(codeBlockMock.Object);
 
@@ -60,7 +60,7 @@
         {
             codeBlockMock.Setup(cb => cb.Code).Returns("} else {");
             codeBlockMock.Setup(cb => cb.BlockType).Returns(CodeBlockNodeType.Continued);
-            nodeFactoryMock.Setup(f => f.CreateCodeNode("} else {", false, false)).Verifiable();
+            nodeFactoryMock.Setup(f => f.CreateCodeNode("} else {", false, false, CodeBlockNodeType.Complete)).Verifiable();
 
             converter.ConvertNode(codeBlockMock.Object);
 
@@ -72,7 +72,7 @@
         {
             codeBlockMock.Setup(cb => cb.Code).Returns("}");
             codeBlockMock.Setup(cb => cb.BlockType).Returns(CodeBlockNodeType.Closing);
-            nodeFactoryMock.Setup(f => f.CreateCodeNode("}", false, false)).Verifiable();
+            nodeFactoryMock.Setup(f => f.CreateCodeNode("}", false, false, CodeBlockNodeType.Complete)).Verifiable();
 
             converter.ConvertNode(codeBlockMock.Object);
 
@@ -85,7 +85,7 @@
             codeBlockMock.Setup(cb => cb.Code).Returns(@"Html.RenderPartial(""AccessibilityValidation"");");
 
             codeBlockMock.Setup(cb => cb.BlockType).Returns(CodeBlockNodeType.Complete);
-            nodeFactoryMock.Setup(f => f.CreateCodeNode(@"@Html.Partial(""AccessibilityValidation"")", false, false)).Verifiable();
+            nodeFactoryMock.Setup(f => f.CreateCodeNode(@"@Html.Partial(""AccessibilityValidation"")", false, false, CodeBlockNodeType.Complete)).Verifiable();
 
             converter.ConvertNode(codeBlockMock.Object);
 

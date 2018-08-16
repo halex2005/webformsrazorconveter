@@ -33,7 +33,15 @@
         {
             nodeMock.SetupGet(n => n.Text).Returns("TEXT");
 
-            renderer.RenderNode(nodeMock.Object).ShouldEqual("@*TEXT*@");
+            renderer.RenderNode(nodeMock.Object, false).ShouldEqual("@*TEXT*@");
+        }
+
+        [Fact]
+        public void Should_render_comment_with_razor_syntax_inside_codeBlock()
+        {
+            nodeMock.SetupGet(n => n.Text).Returns("TEXT");
+
+            renderer.RenderNode(nodeMock.Object, true).ShouldEqual("@*TEXT*@");
         }
     }
 }

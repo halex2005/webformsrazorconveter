@@ -29,11 +29,19 @@
         }
 
         [Fact]
-        public void Should_render_text_as_it_is()
+        public void Should_render_text_as_it_is_outside_codeBlock()
         {
             nodeMock.SetupGet(n => n.Text).Returns("TEXT");
 
-            renderer.RenderNode(nodeMock.Object).ShouldEqual("TEXT");
+            renderer.RenderNode(nodeMock.Object, false).ShouldEqual("TEXT");
+        }
+
+        [Fact]
+        public void Should_render_text_inside_codeBlock()
+        {
+            nodeMock.SetupGet(n => n.Text).Returns("TEXT");
+
+            renderer.RenderNode(nodeMock.Object, true).ShouldEqual("<text>TEXT</text>");
         }
     }
 }

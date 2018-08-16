@@ -1,4 +1,4 @@
-﻿namespace Telerik.RazorConverter.Tests.Razor.Rendering
+namespace Telerik.RazorConverter.Tests.Razor.Rendering
 {
     using Moq;
     using Telerik.RazorConverter.Razor.DOM;
@@ -29,20 +29,37 @@
         }
 
         [Fact]
-        public void Should_prefix_expression()
+        public void Should_prefix_expression_outside_codeBlock()
         {
             expressionNodeMock.SetupGet(n => n.Expression).Returns("DateTime.Now");
 
-            renderer.RenderNode(expressionNodeMock.Object).ShouldEqual("@DateTime.Now");
+            renderer.RenderNode(expressionNodeMock.Object, false).ShouldEqual("@DateTime.Now");
         }
 
         [Fact]
-        public void Should_add_parentheses_for_multiline_expressions()
+        public void Should_prefix_expression_inside_codeBlock()
+        {
+            expressionNodeMock.SetupGet(n => n.Expression).Returns("DateTime.Now");
+
+            renderer.RenderNode(expressionNodeMock.Object, true).ShouldEqual("<text>@DateTime.Now</text>");
+        }
+
+        [Fact]
+        public void Should_add_parentheses_for_multiline_expressions_outside_codeBlock()
         {
             expressionNodeMock.SetupGet(n => n.Expression).Returns("Html.Telerik().Grid(orders)\r\n.Name(\"Grid 1\")");
             expressionNodeMock.SetupGet(n => n.IsMultiline).Returns(true);
 
-            renderer.RenderNode(expressionNodeMock.Object).ShouldEqual("@(Html.Telerik().Grid(orders)\r\n.Name(\"Grid 1\"))");
+            renderer.RenderNode(expressionNodeMock.Object, false).ShouldEqual("@(Html.Telerik().Grid(orders)\r\n.Name(\"Grid 1\"))");
+        }
+
+        [Fact]
+        public void Should_render_as_code_for_multiline_expressions_inside_codeBlock()
+        {
+            expressionNodeMock.SetupGet(n => n.Expression).Returns("Html.Telerik().Grid(orders)\r\n.Name(\"Grid 1\")");
+            expressionNodeMock.SetupGet(n => n.IsMultiline).Returns(true);
+
+            renderer.RenderNode(expressionNodeMock.Object, true).ShouldEqual("<text>@(Html.Telerik().Grid(orders)\r\n.Name(\"Grid 1\"))</text>");
         }
     }
 }

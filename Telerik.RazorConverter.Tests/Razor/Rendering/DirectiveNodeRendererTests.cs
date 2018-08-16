@@ -1,4 +1,4 @@
-﻿namespace Telerik.RazorConverter.Tests.Razor
+namespace Telerik.RazorConverter.Tests.Razor
 {
     using Moq;
     using Telerik.RazorConverter.Razor.DOM;
@@ -23,10 +23,17 @@
         }
 
         [Fact]
-        public void Should_prefix_directive()
+        public void Should_prefix_directive_outside_codeBlock()
         {
             directiveNodeMock.SetupGet(n => n.Directive).Returns("inherits");
-            renderer.RenderNode(directiveNodeMock.Object).ShouldEqual("@inherits");
+            renderer.RenderNode(directiveNodeMock.Object, false).ShouldEqual("@inherits");
+        }
+
+        [Fact]
+        public void Should_prefix_directive_inside_codeBlock()
+        {
+            directiveNodeMock.SetupGet(n => n.Directive).Returns("inherits");
+            renderer.RenderNode(directiveNodeMock.Object, true).ShouldEqual("@inherits");
         }
 
         [Fact]
@@ -34,7 +41,7 @@
         {
             directiveNodeMock.SetupGet(n => n.Directive).Returns("inherits");
             directiveNodeMock.SetupGet(n => n.Parameters).Returns("MyViewDataType");
-            renderer.RenderNode(directiveNodeMock.Object).ShouldEqual("@inherits MyViewDataType");
+            renderer.RenderNode(directiveNodeMock.Object, false).ShouldEqual("@inherits MyViewDataType");
         }
     }
 }

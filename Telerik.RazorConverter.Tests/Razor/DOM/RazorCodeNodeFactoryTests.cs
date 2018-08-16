@@ -1,4 +1,6 @@
-﻿namespace Telerik.RazorConverter.Tests.Razor.DOM
+using Telerik.RazorConverter.WebForms.DOM;
+
+namespace Telerik.RazorConverter.Tests.Razor.DOM
 {
     using Telerik.RazorConverter.Razor.DOM;
     using Xunit;
@@ -15,14 +17,14 @@
         [Fact]
         public void Should_set_code()
         {
-            var codeNode = razorCodeNodeFactory.CreateCodeNode(" CODE ", true, false);
+            var codeNode = razorCodeNodeFactory.CreateCodeNode(" CODE ", true, false, CodeBlockNodeType.Complete);
             codeNode.Code.ShouldEqual(" CODE ");
         }
 
         [Fact]
         public void Should_set_requires_prefix()
         {
-            var codeNode = razorCodeNodeFactory.CreateCodeNode("", true, false);
+            var codeNode = razorCodeNodeFactory.CreateCodeNode("", true, false, CodeBlockNodeType.Complete);
             codeNode.RequiresPrefix.ShouldEqual(true);
         }
     }

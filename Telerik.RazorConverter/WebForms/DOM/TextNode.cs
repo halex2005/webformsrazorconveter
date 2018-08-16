@@ -1,24 +1,13 @@
-﻿namespace Telerik.RazorConverter.WebForms.DOM
+namespace Telerik.RazorConverter.WebForms.DOM
 {
     public class TextNode : WebFormsNode, IWebFormsTextNode
     {
-        public string Text
-        {
-            get;
-            set;
-        }
+        public string Text { get; set; }
 
         string IWebFormsContentNode.Content
         {
-            get
-            {
-                return Text;
-            }
-
-            set
-            {
-                Text = value;
-            }
+            get { return Text; }
+            set { Text = value; }
         }
 
         public TextNode()

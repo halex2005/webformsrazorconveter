@@ -49,7 +49,7 @@
         public void Should_call_renderer_if_supports_child_node()
         {
             firstNodeRenderer.Setup(r => r.CanRenderNode(childNodeMock.Object)).Returns(true);
-            firstNodeRenderer.Setup(r => r.RenderNode(childNodeMock.Object)).Verifiable();
+            firstNodeRenderer.Setup(r => r.RenderNode(childNodeMock.Object, false)).Verifiable();
             viewRenderer.Render(documentMock.Object);
             firstNodeRenderer.Verify();
         }

@@ -1,20 +1,22 @@
-﻿namespace Telerik.RazorConverter.Razor.Rendering
+namespace Telerik.RazorConverter.Razor.Rendering
 {
     using Telerik.RazorConverter.Razor.DOM;
 
     public class ExpressionNodeRenderer : IRazorNodeRenderer
     {
-        public string RenderNode(IRazorNode node)
+        public string RenderNode(IRazorNode node, bool isInCodeBlockContext)
         {
             var srcNode = node as IRazorExpressionNode;
-            var formatString = "@{0}";
-            var expression = srcNode.Expression;
+            var formatString = isInCodeBlockContext
+                ? "<text>@{0}</text>"
+                : "@{0}";
 
             if (srcNode.IsMultiline)
             {
-                formatString = "@({0})";
+                formatString = formatString.Replace("@{0}", "@({0})");
             }
 
+            var expression = srcNode.Expression;
             return string.Format(formatString, expression);
         }
 

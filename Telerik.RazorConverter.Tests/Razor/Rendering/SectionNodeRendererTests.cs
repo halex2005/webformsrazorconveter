@@ -43,7 +43,7 @@
         {
             sectionNodeMock.SetupGet(n => n.Children).Returns(new IRazorNode[] {});
 
-            string output = renderer.RenderNode(sectionNodeMock.Object);
+            string output = renderer.RenderNode(sectionNodeMock.Object, false);
             Regex.Replace(output, @"\s+", " ").ShouldEqual("@section HeadContent { }");
         }
 
@@ -51,11 +51,11 @@
         public void Should_render_children_in_section()
         {
             nodeRendererMock.Setup(r => r.CanRenderNode(It.IsAny<IRazorNode>())).Returns(true);
-            nodeRendererMock.Setup(r => r.RenderNode(It.IsAny<IRazorNode>())).Returns("Text");
+            nodeRendererMock.Setup(r => r.RenderNode(It.IsAny<IRazorNode>(), false)).Returns("Text");
 
             sectionNodeMock.SetupGet(n => n.Children).Returns(new IRazorNode[] { new Mock<IRazorNode>().Object });
 
-            string output = renderer.RenderNode(sectionNodeMock.Object);
+            string output = renderer.RenderNode(sectionNodeMock.Object, false);
             Regex.Replace(output, @"\s+", " ").ShouldEqual("@section HeadContent { Text }");
         }
     }

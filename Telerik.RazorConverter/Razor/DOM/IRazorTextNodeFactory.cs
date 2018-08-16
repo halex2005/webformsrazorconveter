@@ -1,7 +1,9 @@
-﻿namespace Telerik.RazorConverter.Razor.DOM
+using Telerik.RazorConverter.WebForms.DOM;
+
+namespace Telerik.RazorConverter.Razor.DOM
 {
     public interface IRazorTextNodeFactory
     {
-        IRazorTextNode CreateTextNode(string text);
+        IRazorTextNode CreateTextNode(string text, CodeBlockNodeType blockType);
     }
 }

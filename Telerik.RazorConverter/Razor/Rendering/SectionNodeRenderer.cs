@@ -16,7 +16,7 @@
             RendererProvider = NodeRendererProvider;
         }
 
-        public string RenderNode(IRazorNode node)
+        public string RenderNode(IRazorNode node, bool isInCodeBlockContext)
         {
             var sectionNode = node as IRazorSectionNode;
             string childContent = null;
@@ -39,7 +39,7 @@
                 {
                     if (renderer.CanRenderNode(childNode))
                     {
-                        sb.Append(renderer.RenderNode(childNode));
+                        sb.Append(renderer.RenderNode(childNode, false));
                         break;
                     }
                 }

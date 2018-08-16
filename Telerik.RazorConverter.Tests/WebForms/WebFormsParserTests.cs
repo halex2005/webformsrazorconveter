@@ -1,11 +1,11 @@
-﻿namespace RazorConverter.WebForms.Test
+namespace RazorConverter.WebForms.Test
 {
     using Moq;
     using Telerik.RazorConverter.WebForms.DOM;
     using Telerik.RazorConverter.WebForms.Filters;
     using Telerik.RazorConverter.WebForms.Parsing;
     using Xunit;
-    
+
     public class WebFormsParserTests
     {
         private readonly Mock<IWebFormsNodeFilterProvider> filterProviderMock;
@@ -112,20 +112,46 @@
         }
 
         [Fact]
-        public void Parse_should_treat_HTML_tags_nested_in_server_control_as_text()
+        public void Parse_should_treat_HTML_tags_nested_in_server_control_as_htmlTag()
         {
             var document = parser.Parse(@"<asp:Content runat=""server""><span>INNER TEXT</span></asp:Content>");
-            ((IWebFormsTextNode)document.RootNode.Children[0].Children[0]).Text.ShouldEqual("<span>INNER TEXT</span>");
+            ((IWebFormsHtmlTagNode)document.RootNode.Children[0].Children[0]).Content.ShouldEqual("<span>");
+            ((IWebFormsTextNode)document.RootNode.Children[0].Children[0].Children[0]).Text.ShouldEqual("INNER TEXT");
         }
 
         [Fact]
         public void Parse_should_parse_multiple_server_control_tags()
         {
-            var document = parser.Parse(@"<asp:Content runat=""server""><span>INNER TEXT 1</span></asp:Content><asp:Content runat=""server""><span>INNER TEXT 2</span></asp:Content>");
+            var document = parser.Parse(
+                @"<asp:Content runat=""server""><span>INNER TEXT 1</span></asp:Content><asp:Content runat=""server""><span>INNER TEXT 2</span></asp:Content>");
             (document.RootNode.Children[0] is IWebFormsServerControlNode).ShouldBeTrue();
             (document.RootNode.Children[1] is IWebFormsServerControlNode).ShouldBeTrue();
-            ((IWebFormsTextNode)document.RootNode.Children[0].Children[0]).Text.ShouldEqual("<span>INNER TEXT 1</span>");
-            ((IWebFormsTextNode)document.RootNode.Children[1].Children[0]).Text.ShouldEqual("<span>INNER TEXT 2</span>");
+            ((IWebFormsHtmlTagNode)document.RootNode.Children[0].Children[0]).Content.ShouldEqual("<span>");
+            ((IWebFormsTextNode)document.RootNode.Children[0].Children[0].Children[0]).Content.ShouldEqual("INNER TEXT 1");
+            ((IWebFormsHtmlTagNode)document.RootNode.Children[1].Children[0]).Content.ShouldEqual("<span>");
+            ((IWebFormsTextNode)document.RootNode.Children[1].Children[0].Children[0]).Text.ShouldEqual("INNER TEXT 2");
+        }
+
+        [Fact]
+        public void Parse_should_threat_HTML_tags_as_htmlTag()
+        {
+            var document = parser.Parse(@"<div runat=""server"">INNER TEXT</div>");
+            var htmlTagNode = (IWebFormsHtmlTagNode)document.RootNode.Children[0];
+            htmlTagNode.TagName.ShouldEqual("div");
+            htmlTagNode.Content.ShouldEqual(@"<div runat=""server"">");
+            htmlTagNode.BlockType.ShouldEqual(CodeBlockNodeType.Opening);
+            ((IWebFormsTextNode)htmlTagNode.Children[0]).Text.ShouldEqual("INNER TEXT");
+        }
+
+        [Fact]
+        public void Parse_should_threat_HTML_tags_with_expression_attributes_as_htmlTag()
+        {
+            var document = parser.Parse(@"<div id=""<%=uid%>"" value=""<%=nameof(Html)%>"">INNER TEXT</div>");
+            var htmlTagNode = (IWebFormsHtmlTagNode)document.RootNode.Children[0];
+            htmlTagNode.TagName.ShouldEqual("div");
+            htmlTagNode.Content.ShouldEqual(@"<div id=""<%=uid%>"" value=""<%=nameof(Html)%>"">");
+            htmlTagNode.BlockType.ShouldEqual(CodeBlockNodeType.Opening);
+            ((IWebFormsTextNode)htmlTagNode.Children[0]).Text.ShouldEqual("INNER TEXT");
         }
 
         [Fact]
@@ -139,7 +165,8 @@
         public void Parse_should_treat_HTML_tags_as_text()
         {
             var document = parser.Parse(@"<div>INNER TEXT</div>");
-            ((IWebFormsTextNode)document.RootNode.Children[0]).Text.ShouldEqual("<div>INNER TEXT</div>");
+            ((IWebFormsHtmlTagNode)document.RootNode.Children[0]).Content.ShouldEqual("<div>");
+            ((IWebFormsTextNode)document.RootNode.Children[0].Children[0]).Text.ShouldEqual("INNER TEXT");
         }
 
         [Fact]
@@ -153,8 +180,8 @@
         public void Parse_should_parse_expression_blocks_within_tags()
         {
             var document = parser.Parse(@"<link href=""<%= ResolveUrl(""~/favicon.ico"") %>"" type=""image/x-icon"" rel=""icon"" />");
-            ((IWebFormsExpressionBlockNode)document.RootNode.Children[1])
-                .Expression.Trim().ShouldEqual(@"ResolveUrl(""~/favicon.ico"")");
+            ((IWebFormsHtmlTagNode)document.RootNode.Children[0]).Content.ShouldEqual(
+                @"<link href=""<%= ResolveUrl(""~/favicon.ico"") %>"" type=""image/x-icon"" rel=""icon"" />");
         }
 
         [Fact]
@@ -200,52 +227,54 @@
         }
 
         [Fact]
-        public void Should_not_parse_script_content()
+        public void Should_parse_script_content_as_htmlTag()
         {
-            var script = @"<script type=""text/javascript"">alert('</a><img');</script>";
-            var document = parser.Parse(@"<asp:Content runat=""server"">" + script + @"</asp:Content>");
-            ((IWebFormsTextNode)document.RootNode.Children[0].Children[0]).Text.ShouldEqual(script);
+            var script = @"alert('</a><img');";
+            var scriptTag = $@"<script type=""text/javascript"">{script}</script>";
+            var document = parser.Parse($@"<asp:Content runat=""server"">{scriptTag}</asp:Content>");
+            ((IWebFormsHtmlTagNode)document.RootNode.Children[0].Children[0]).Content.ShouldEqual(@"<script type=""text/javascript"">");
+            ((IWebFormsTextNode)document.RootNode.Children[0].Children[0].Children[0]).Text.ShouldEqual(script);
         }
 
         [Fact]
         public void Should_treat_doctype_as_text()
         {
-            var docType = @"<!DOCTYPE html PUBLIC   ""-//W3C//DTD XHTML 1.0 Strict//EN""
-                                                    ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"">";
+            var docType = @"<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Strict//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"">";
             var document = parser.Parse(docType);
             ((IWebFormsTextNode)document.RootNode.Children[0]).Text.ShouldEqual(docType);
         }
 
-		[Fact]
-		public void Parse_should_treat_adjacent_elements_as_siblings()
-		{
-			var document = parser.Parse(@"<asp:Label runat=""server"" id=""label1""></asp:Label><asp:Label runat=""server"" id=""label2""></asp:Label>");
-			(document.RootNode.Children[0] is IWebFormsServerControlNode).ShouldBeTrue();
-			(document.RootNode.Children[1] is IWebFormsServerControlNode).ShouldBeTrue();
-			((IWebFormsServerControlNode)document.RootNode.Children[0]).Attributes["id"].ShouldEqual("label1");
-			((IWebFormsServerControlNode)document.RootNode.Children[1]).Attributes["id"].ShouldEqual("label2");
-		}
+        [Fact]
+        public void Parse_should_treat_adjacent_elements_as_siblings()
+        {
+            var document = parser.Parse(@"<asp:Label runat=""server"" id=""label1""></asp:Label><asp:Label runat=""server"" id=""label2""></asp:Label>");
+            (document.RootNode.Children[0] is IWebFormsServerControlNode).ShouldBeTrue();
+            (document.RootNode.Children[1] is IWebFormsServerControlNode).ShouldBeTrue();
+            ((IWebFormsServerControlNode)document.RootNode.Children[0]).Attributes["id"].ShouldEqual("label1");
+            ((IWebFormsServerControlNode)document.RootNode.Children[1]).Attributes["id"].ShouldEqual("label2");
+        }
 
-		[Fact]
-		public void Parse_should_treat_adjacent_elements_withshortcut_closing_as_siblings()
-		{
-			var document = parser.Parse(@"<asp:Label runat=""server"" id=""label1""/><asp:Label runat=""server"" id=""label2""/>");
-			(document.RootNode.Children[0] is IWebFormsServerControlNode).ShouldBeTrue();
-			(document.RootNode.Children[1] is IWebFormsServerControlNode).ShouldBeTrue();
-			((IWebFormsServerControlNode)document.RootNode.Children[0]).Attributes["id"].ShouldEqual("label1");
-			((IWebFormsServerControlNode)document.RootNode.Children[1]).Attributes["id"].ShouldEqual("label2");
-		}
+        [Fact]
+        public void Parse_should_treat_adjacent_elements_withshortcut_closing_as_siblings()
+        {
+            var document = parser.Parse(@"<asp:Label runat=""server"" id=""label1""/><asp:Label runat=""server"" id=""label2""/>");
+            (document.RootNode.Children[0] is IWebFormsServerControlNode).ShouldBeTrue();
+            (document.RootNode.Children[1] is IWebFormsServerControlNode).ShouldBeTrue();
+            ((IWebFormsServerControlNode)document.RootNode.Children[0]).Attributes["id"].ShouldEqual("label1");
+            ((IWebFormsServerControlNode)document.RootNode.Children[1]).Attributes["id"].ShouldEqual("label2");
+        }
 
         [Fact]
         public void Should_parse_javascript_nested_expressions()
         {
             var script = "<script type=\"javascript\">var url = '<%= Url.Action(\"Test\", \"Controller\", null)%>';</script>";
             var document = parser.Parse(script);
-            document.RootNode.Children.Count.ShouldEqual(3);
-            ((IWebFormsTextNode)document.RootNode.Children[0]).Text.ShouldEqual("<script type=\"javascript\">var url = '");
-            ((IWebFormsExpressionBlockNode)document.RootNode.Children[1]).Expression.ShouldEqual(" Url.Action(\"Test\", \"Controller\", null)");
-            ((IWebFormsTextNode)document.RootNode.Children[2]).Text.ShouldEqual("';</script>");
+            document.RootNode.Children.Count.ShouldEqual(1);
+            var htmlTag = document.RootNode.Children[0];
+            htmlTag.Children.Count.ShouldEqual(3);
+            ((IWebFormsTextNode)htmlTag.Children[0]).Text.ShouldEqual("var url = '");
+            ((IWebFormsExpressionBlockNode)htmlTag.Children[1]).Expression.ShouldEqual(" Url.Action(\"Test\", \"Controller\", null)");
+            ((IWebFormsTextNode)htmlTag.Children[2]).Text.ShouldEqual("';");
         }
     }
 }
-

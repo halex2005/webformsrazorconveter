@@ -1,4 +1,4 @@
-﻿namespace Telerik.RazorConverter.Razor.Converters
+namespace Telerik.RazorConverter.Razor.Converters
 {
     using System.Collections.Generic;
     using System.Text.RegularExpressions;
@@ -7,11 +7,7 @@
 
     public class ExpressionBlockConverter : INodeConverter<IRazorNode>
     {
-        private IRazorExpressionNodeFactory ExpressionNodeFactory
-        {
-            get;
-            set;
-        }
+        private IRazorExpressionNodeFactory ExpressionNodeFactory { get; set; }
 
         public ExpressionBlockConverter(IRazorExpressionNodeFactory nodeFactory)
         {
@@ -21,15 +17,24 @@
         public IList<IRazorNode> ConvertNode(IWebFormsNode node)
         {
             var srcNode = node as IWebFormsExpressionBlockNode;
-            var isMultiline = srcNode.Expression.Contains("\r") || srcNode.Expression.Contains("\n");
+            var isMultiline = srcNode.Expression.Contains("\r")
+                || srcNode.Expression.Contains("\n")
+                || DoesExpressionContainsComplexLogic(srcNode);
             var expression = srcNode.Expression.Trim(new char[] { ' ', '\t' });
             expression = expression.Replace("ResolveUrl", "Url.Content");
             expression = RemoveHtmlEncode(expression);
             expression = WrapHtmlDecode(expression);
-            return new IRazorNode[] 
+            return new IRazorNode[]
             {
                 ExpressionNodeFactory.CreateExpressionNode(expression, isMultiline)
             };
+        }
+
+        private bool DoesExpressionContainsComplexLogic(IWebFormsExpressionBlockNode srcNode)
+        {
+            return !string.IsNullOrWhiteSpace(srcNode.Content) &&
+                srcNode.Content.Contains("?") ||
+                srcNode.Content.Contains("=");
         }
 
         public bool CanConvertNode(IWebFormsNode node)
@@ -39,21 +44,17 @@
 
         private string RemoveHtmlEncode(string input)
         {
-            var searchRegex = new Regex(@"(Html\.Encode|HttpUtility\.HtmlEncode)\s*\((?<statement>(?>[^()]+|\((?<Depth>)|\)(?<-Depth>))*(?(Depth)(?!)))\)", RegexOptions.Singleline | RegexOptions.Multiline);
+            var searchRegex = new Regex(
+                @"(Html\.Encode|HttpUtility\.HtmlEncode)\s*\((?<statement>(?>[^()]+|\((?<Depth>)|\)(?<-Depth>))*(?(Depth)(?!)))\)",
+                RegexOptions.Singleline | RegexOptions.Multiline);
             var stringCastRegex = new Regex(@"^\(\s*string\s*\)\s*", RegexOptions.IgnoreCase);
-            return searchRegex.Replace(input, m =>
-            {
-                return stringCastRegex.Replace(m.Groups["statement"].Value.Trim(), "");
-            });
+            return searchRegex.Replace(input, m => stringCastRegex.Replace(m.Groups["statement"].Value.Trim(), ""));
         }
 
         private string WrapHtmlDecode(string input)
         {
             var searchRegex = new Regex(@"HttpUtility.HtmlDecode\((?<statement>.*)\)", RegexOptions.Singleline | RegexOptions.Multiline);
-            return searchRegex.Replace(input, m =>
-            {
-                return string.Format("Html.Raw(HttpUtility.HtmlDecode({0}))", m.Groups["statement"].Value.Trim());
-            });
+            return searchRegex.Replace(input, m => string.Format("Html.Raw(HttpUtility.HtmlDecode({0}))", m.Groups["statement"].Value.Trim()));
         }
     }
 }

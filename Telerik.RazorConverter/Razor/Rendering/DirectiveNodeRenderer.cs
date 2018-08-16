@@ -4,7 +4,7 @@
 
     public class DirectiveNodeRenderer : IRazorNodeRenderer
     {
-        public string RenderNode(IRazorNode node)
+        public string RenderNode(IRazorNode node, bool isInCodeBlockContext)
         {
             var directiveNode = node as IRazorDirectiveNode;
             return string.Format("@{0} {1}", directiveNode.Directive, directiveNode.Parameters).Trim();

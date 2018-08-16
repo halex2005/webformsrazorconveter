@@ -1,4 +1,4 @@
-﻿namespace RazorConverter.Core.Tests
+namespace RazorConverter.Core.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -14,25 +14,13 @@
     public class IntegrationTests
     {
         [Import]
-        private IWebFormsParser Parser
-        {
-            get;
-            set;
-        }
+        private IWebFormsParser Parser { get; set; }
 
         [Import]
-        private IWebFormsConverter<IRazorNode> Converter
-        {
-            get;
-            set;
-        }
+        private IWebFormsConverter<IRazorNode> Converter { get; set; }
 
         [Import]
-        private IRenderer<IRazorNode> Renderer
-        {
-            get;
-            set;
-        }
+        private IRenderer<IRazorNode> Renderer { get; set; }
 
         public IntegrationTests()
         {
@@ -49,7 +37,8 @@
                 foreach (var inputFile in testCasesFolder.EnumerateFiles("*.aspx.txt"))
                 {
                     var referenceFileName = inputFile.FullName.Replace(".aspx.txt", ".cshtml");
-                    yield return new object[] {
+                    yield return new object[]
+                    {
                         inputFile.Name,
                         File.ReadAllText(inputFile.FullName),
                         File.ReadAllText(referenceFileName)
@@ -78,7 +67,7 @@
                 var annotatedActualLine = string.Format(annotatedFormatString, lineNum, actualLines[lineNum].Trim());
                 var annotatedReferenceLine = string.Format(annotatedFormatString, lineNum, referenceLines[lineNum].Trim());
 
-                annotatedActualLine.ShouldEqual(annotatedReferenceLine);                    
+                annotatedActualLine.ShouldEqual(annotatedReferenceLine);
             }
 
             // Length verification done last in order to show line by line comparision first
@@ -88,8 +77,8 @@
         private static IList<string> GetNonEmptyLines(string input)
         {
             return input.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
-                        .Where(l => !string.IsNullOrWhiteSpace(l))
-                        .ToList();
+                .Where(l => !string.IsNullOrWhiteSpace(l))
+                .ToList();
         }
     }
 }

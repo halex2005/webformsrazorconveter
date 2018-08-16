@@ -1,4 +1,4 @@
-﻿namespace Telerik.RazorConverter.Razor.Converters
+namespace Telerik.RazorConverter.Razor.Converters
 {
     using System.Collections.Generic;
     using System.ComponentModel.Composition;
@@ -9,29 +9,29 @@
     public class RazorNodeConverterProvider : IRazorNodeConverterProvider
     {
         [ImportingConstructor]
-        public RazorNodeConverterProvider(  IRazorDirectiveNodeFactory directiveNodeFactory,
-                                            IRazorSectionNodeFactory sectionNodeFactory,
-                                            IRazorCodeNodeFactory codeNodeFactory,
-                                            IRazorTextNodeFactory textNodeFactory,
-                                            IRazorCommentNodeFactory commentNodeFactory,
-                                            IRazorExpressionNodeFactory expressionNodeFactory,
-                                            IContentTagConverterConfiguration contentTagConverterConfig)
+        public RazorNodeConverterProvider(
+            IRazorDirectiveNodeFactory directiveNodeFactory,
+            IRazorSectionNodeFactory sectionNodeFactory,
+            IRazorCodeNodeFactory codeNodeFactory,
+            IRazorTextNodeFactory textNodeFactory,
+            IRazorCommentNodeFactory commentNodeFactory,
+            IRazorExpressionNodeFactory expressionNodeFactory,
+            IContentTagConverterConfiguration contentTagConverterConfig,
+            IWebFormsParser webFormsParser)
         {
-            NodeConverters = new INodeConverter<IRazorNode>[] {
+            NodeConverters = new INodeConverter<IRazorNode>[]
+            {
                 new DirectiveConverter(directiveNodeFactory),
                 new ContentTagConverter(this, sectionNodeFactory, contentTagConverterConfig),
                 new CodeGroupConverter(this),
                 new CodeBlockConverter(codeNodeFactory),
+                new HtmlTagNodeConverter(textNodeFactory, this, webFormsParser),
                 new TextNodeConverter(textNodeFactory),
                 new CommentNodeConverter(commentNodeFactory),
                 new ExpressionBlockConverter(expressionNodeFactory)
             };
         }
 
-        public IList<INodeConverter<IRazorNode>> NodeConverters
-        {
-            get;
-            private set;
-        }
+        public IList<INodeConverter<IRazorNode>> NodeConverters { get; private set; }
     }
 }

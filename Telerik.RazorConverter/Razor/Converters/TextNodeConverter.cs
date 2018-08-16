@@ -1,4 +1,4 @@
-﻿namespace Telerik.RazorConverter.Razor.Converters
+namespace Telerik.RazorConverter.Razor.Converters
 {
     using System.Collections.Generic;
     using Telerik.RazorConverter.Razor.DOM;
@@ -20,7 +20,7 @@
         public IList<IRazorNode> ConvertNode(IWebFormsNode node)
         {
             var srcNode = node as IWebFormsTextNode;
-            var destNode = TextNodeFactory.CreateTextNode(srcNode.Text);
+            var destNode = TextNodeFactory.CreateTextNode(srcNode.Text, CodeBlockNodeType.Complete);
             return new IRazorNode[] { destNode };
         }
 

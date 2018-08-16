@@ -231,6 +231,7 @@
     </Content>
     <None Include="TestCases\TestCase25.cshtml" />
     <None Include="TestCases\TestCase27.cshtml" />
+    <None Include="TestCases\TestCase28.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestCases\TestCase01.cshtml">

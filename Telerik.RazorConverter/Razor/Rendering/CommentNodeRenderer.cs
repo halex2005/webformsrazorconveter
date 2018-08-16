@@ -4,7 +4,7 @@
 
     public class CommentNodeRenderer : IRazorNodeRenderer
     {
-        public string RenderNode(IRazorNode node)
+        public string RenderNode(IRazorNode node, bool isInCodeBlockContext)
         {
             var commentNode = node as IRazorCommentNode;
             return "@*" + commentNode.Text + "*@";

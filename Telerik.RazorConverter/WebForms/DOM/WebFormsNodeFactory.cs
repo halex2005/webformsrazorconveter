@@ -1,34 +1,37 @@
-﻿namespace Telerik.RazorConverter.WebForms.Parsing
+namespace Telerik.RazorConverter.WebForms.Parsing
 {
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.Composition;
     using System.Linq;
     using System.Text.RegularExpressions;
-    using Telerik.RazorConverter.WebForms.DOM;   
+    using Telerik.RazorConverter.WebForms.DOM;
 
     [Export(typeof(IWebFormsNodeFactory))]
     public class WebFormsNodeFactory : IWebFormsNodeFactory
     {
         private IAttributesReader attributesReader;
 
-        public IDictionary<NodeType, Func<Match, IWebFormsNode>> NodeBuilders
-        { 
-            get; 
-            private set;
-        }
+        private static readonly Regex AttributesRegex = new Regex(
+            @"((?<attrname>\w[-\w:]*)(\s*=\s*\""(?<attrval>[^\""]*)\""|\s*=\s*'(?<attrval>[^']*)'|\s*=\s*(?<attrval><%#.*?%>)|\s*=\s*(?<attrval>[^\s=/>]*)|(?<attrval>\s*?)))",
+            RegexOptions.Multiline | RegexOptions.IgnoreCase | RegexOptions.ECMAScript | RegexOptions.Compiled);
+
+        public IDictionary<NodeType, Func<Match, IWebFormsNode>> NodeBuilders { get; private set; }
 
         public WebFormsNodeFactory()
         {
             attributesReader = new AttributesReader();
-            NodeBuilders = new Dictionary<NodeType, Func<Match, IWebFormsNode>>();
-            NodeBuilders.Add(NodeType.Directive, DirectiveNodeBuilder);
-            NodeBuilders.Add(NodeType.Text, TextNodeBuilder);
-            NodeBuilders.Add(NodeType.Comment, CommentNodeBuilder);
-            NodeBuilders.Add(NodeType.ServerControl, ServerControlNodeBuilder);
-            NodeBuilders.Add(NodeType.CodeBlock, CodeBlockNodeBuilder);
-            NodeBuilders.Add(NodeType.ExpressionBlock, ExpressionBlockNodeBuilder);
-            NodeBuilders.Add(NodeType.EncodedExpressionBlock, ExpressionBlockNodeBuilder);
+            NodeBuilders = new Dictionary<NodeType, Func<Match, IWebFormsNode>>
+            {
+                { NodeType.Directive, DirectiveNodeBuilder },
+                { NodeType.Text, TextNodeBuilder },
+                { NodeType.HtmlTag, HtmlTagNodeBuilder },
+                { NodeType.Comment, CommentNodeBuilder },
+                { NodeType.ServerControl, ServerControlNodeBuilder },
+                { NodeType.CodeBlock, CodeBlockNodeBuilder },
+                { NodeType.ExpressionBlock, ExpressionBlockNodeBuilder },
+                { NodeType.EncodedExpressionBlock, ExpressionBlockNodeBuilder }
+            };
         }
 
         public IWebFormsNode CreateNode(Match match, NodeType type)
@@ -48,7 +51,8 @@
 
         private IWebFormsNode DirectiveNodeBuilder(Match match)
         {
-            var node = new DirectiveNode { 
+            var node = new DirectiveNode
+            {
                 Directive = DirectiveType.Unknown,
                 Type = NodeType.Directive
             };
@@ -57,7 +61,7 @@
 
             if (match.Groups.Count > 1 && match.Groups[1].Captures.Count > 0)
             {
-                string directiveType= match.Groups[1].Captures[0].Value.ToLowerInvariant();
+                string directiveType = match.Groups[1].Captures[0].Value.ToLowerInvariant();
                 if (directiveType.Contains("page"))
                 {
                     node.Directive = DirectiveType.Page;
@@ -82,6 +86,26 @@
             return node;
         }
 
+        private IWebFormsNode HtmlTagNodeBuilder(Match match)
+        {
+            var codeBlockType = match.Value.EndsWith("/>")
+                ? CodeBlockNodeType.Complete
+                : match.Value.StartsWith("</")
+                    ? CodeBlockNodeType.Closing
+                    : CodeBlockNodeType.Opening;
+            var node = new WebFormsHtmlTagNode
+            {
+                Content = match.Value,
+                BlockType = codeBlockType
+            };
+            if (match.Groups["tagname"].Success)
+            {
+                node.TagName = match.Groups["tagname"].Captures[0].Value;
+            }
+
+            return node;
+        }
+
         private IWebFormsNode CommentNodeBuilder(Match match)
         {
             var node = new CommentNode { Text = match.Groups["comment"].Value };
@@ -101,11 +125,7 @@
 
             if (match.Groups["attributes"].Success)
             {
-                var attributeRegex = new Regex(
-                    @"((?<attrname>\w[-\w:]*)(\s*=\s*\""(?<attrval>[^\""]*)\""|\s*=\s*'(?<attrval>[^']*)'|\s*=\s*(?<attrval><%#.*?%>)|\s*=\s*(?<attrval>[^\s=/>]*)|(?<attrval>\s*?)))",
-                    RegexOptions.Singleline | RegexOptions.Multiline);
-
-                var attributeMatch = attributeRegex.Match(match.Groups["attributes"].Value);
+                var attributeMatch = AttributesRegex.Match(match.Groups["attributes"].Value);
                 while (attributeMatch.Success)
                 {
                     node.Attributes[attributeMatch.Groups["attrname"].Value] = attributeMatch.Groups["attrval"].Value;

@@ -3,4 +3,7 @@
 <head runat="server">
 	@{ var someVariable = "value"; }
 	<div>@someVariable</div>
+	@if (someVariable.Length > 0) { <text>
+		some text here
+	</text> }
 </head>

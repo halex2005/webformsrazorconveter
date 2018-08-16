@@ -1,4 +1,4 @@
-﻿namespace Telerik.RazorConverter.Tests.Razor.Rendering
+namespace Telerik.RazorConverter.Tests.Razor.Rendering
 {
     using Moq;
     using Telerik.RazorConverter.Razor.DOM;
@@ -29,12 +29,21 @@
         }
 
         [Fact]
-        public void Should_prefix_code()
+        public void Should_prefix_code_outside_codeBlock()
         {
             codeNodeMock.SetupGet(n => n.Code).Returns("if (true) { doSomething(); }");
             codeNodeMock.SetupGet(n => n.RequiresPrefix).Returns(true);
 
-            renderer.RenderNode(codeNodeMock.Object).ShouldEqual("@if (true) { doSomething(); }");
+            renderer.RenderNode(codeNodeMock.Object, false).ShouldEqual("@if (true) { doSomething(); }");
+        }
+
+        [Fact]
+        public void Should_not_prefix_code_inside_codeBlock()
+        {
+            codeNodeMock.SetupGet(n => n.Code).Returns("if (true) { doSomething(); }");
+            codeNodeMock.SetupGet(n => n.RequiresPrefix).Returns(true);
+
+            renderer.RenderNode(codeNodeMock.Object, true).ShouldEqual("if (true) { doSomething(); }");
         }
 
         [Fact]
@@ -43,7 +52,7 @@
             codeNodeMock.SetupGet(n => n.Code).Returns(" if (true) { doSomething(); }");
             codeNodeMock.SetupGet(n => n.RequiresPrefix).Returns(true);
 
-            renderer.RenderNode(codeNodeMock.Object).ShouldEqual("@if (true) { doSomething(); }");
+            renderer.RenderNode(codeNodeMock.Object, false).ShouldEqual("@if (true) { doSomething(); }");
         }
 
         [Fact]
@@ -52,7 +61,7 @@
             codeNodeMock.SetupGet(n => n.Code).Returns("} else {");
             codeNodeMock.SetupGet(n => n.RequiresPrefix).Returns(false);
 
-            renderer.RenderNode(codeNodeMock.Object).ShouldEqual("} else {");
+            renderer.RenderNode(codeNodeMock.Object, false).ShouldEqual("} else {");
         }
 
         [Fact]
@@ -61,16 +70,25 @@
             codeNodeMock.SetupGet(n => n.Code).Returns(" }");
             codeNodeMock.SetupGet(n => n.RequiresPrefix).Returns(false);
 
-            renderer.RenderNode(codeNodeMock.Object).ShouldEqual(" }");
+            renderer.RenderNode(codeNodeMock.Object, false).ShouldEqual(" }");
         }
 
         [Fact]
-        public void Should_add_block()
+        public void Should_add_block_outside_codeBlock()
         {
             codeNodeMock.SetupGet(n => n.Code).Returns(" code ");
             codeNodeMock.SetupGet(n => n.RequiresBlock).Returns(true);
 
-            renderer.RenderNode(codeNodeMock.Object).ShouldEqual("@{\r\n code \r\n}");
+            renderer.RenderNode(codeNodeMock.Object, false).ShouldEqual("@{\r\n code \r\n}");
+        }
+
+        [Fact]
+        public void Should_add_block_inside_codeBlock()
+        {
+            codeNodeMock.SetupGet(n => n.Code).Returns(" code ");
+            codeNodeMock.SetupGet(n => n.RequiresBlock).Returns(true);
+
+            renderer.RenderNode(codeNodeMock.Object, true).ShouldEqual(" code ");
         }
     }
 }
